@@ -2,16 +2,5 @@
     "name": "Netatmo DoorTags",
     "content_in_root": false,
     "render_readme": false,
-    "hacs": "1.6.0",
-    "domains": [
-      "binary_sensor",
-      "camera",
-      "climate",
-      "cover",
-      "light",
-      "select",
-      "sensor",
-      "switch"
-    ],
-    "homeassistant": "0.118.0"
+    "homeassistant": "2023.8.0"
   }
