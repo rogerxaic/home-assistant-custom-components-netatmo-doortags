@@ -11,7 +11,7 @@ from time import time
 from typing import Any
 
 import pyatmo
-from pyatmo.modules.device_types import DeviceCategory as NetatmoDeviceCategory
+from pyatmo.modules.device_types import DeviceCategory as NetatmoDeviceCategory, DeviceType as NetatmoDeviceType
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -32,6 +32,7 @@ from .const import (
     NETATMO_CREATE_CAMERA_LIGHT,
     NETATMO_CREATE_CLIMATE,
     NETATMO_CREATE_COVER,
+    NETATMO_CREATE_DOORTAG_SENSOR,
     NETATMO_CREATE_LIGHT,
     NETATMO_CREATE_ROOM_SENSOR,
     NETATMO_CREATE_SELECT,
@@ -67,7 +68,7 @@ PUBLISHERS = {
 BATCH_SIZE = 3
 DEFAULT_INTERVALS = {
     ACCOUNT: 10800,
-    HOME: 300,
+    HOME: 60,
     WEATHER: 600,
     AIR_CARE: 300,
     PUBLIC: 600,
@@ -325,7 +326,19 @@ class NetatmoDataHandler:
         }
         for module in home.modules.values():
             if not module.device_category:
-                continue
+                if module.device_type == NetatmoDeviceType.NACamDoorTag:
+                    async_dispatcher_send(
+                        self.hass,
+                        NETATMO_CREATE_DOORTAG_SENSOR,
+                        NetatmoDevice(
+                            self,
+                            module,
+                            home.entity_id,
+                            signal_home,
+                        ),
+                    )
+                else:
+                    continue
 
             for signal in netatmo_type_signal_map.get(module.device_category, []):
                 async_dispatcher_send(

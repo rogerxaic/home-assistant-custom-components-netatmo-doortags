@@ -8,6 +8,7 @@ MANUFACTURER = "Netatmo"
 DEFAULT_ATTRIBUTION = f"Data provided by {MANUFACTURER}"
 
 PLATFORMS = [
+    Platform.BINARY_SENSOR,
     Platform.CAMERA,
     Platform.CLIMATE,
     Platform.COVER,
@@ -35,6 +36,7 @@ NETATMO_CREATE_CAMERA = "netatmo_create_camera"
 NETATMO_CREATE_CAMERA_LIGHT = "netatmo_create_camera_light"
 NETATMO_CREATE_CLIMATE = "netatmo_create_climate"
 NETATMO_CREATE_COVER = "netatmo_create_cover"
+NETATMO_CREATE_DOORTAG_SENSOR = "netatmo_create_doortag_sensor"
 NETATMO_CREATE_LIGHT = "netatmo_create_light"
 NETATMO_CREATE_ROOM_SENSOR = "netatmo_create_room_sensor"
 NETATMO_CREATE_SELECT = "netatmo_create_select"
@@ -75,6 +77,7 @@ ATTR_HEATING_POWER_REQUEST = "heating_power_request"
 ATTR_HOME_ID = "home_id"
 ATTR_HOME_NAME = "home_name"
 ATTR_IS_KNOWN = "is_known"
+ATTR_OPEN = "open"
 ATTR_PERSON = "person"
 ATTR_PERSONS = "persons"
 ATTR_PSEUDO = "pseudo"
