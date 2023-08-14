@@ -12,6 +12,8 @@ from typing import Any
 
 import pyatmo
 from pyatmo.modules.device_types import DeviceCategory as NetatmoDeviceCategory, DeviceType as NetatmoDeviceType
+from pyatmo.const import GETHOMESDATA_ENDPOINT
+from pyatmo.helpers import extract_raw_data_new
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -284,7 +286,7 @@ class NetatmoDataHandler:
 
             self.setup_climate_schedule_select(home, signal_home)
             self.setup_rooms(home, signal_home)
-            self.setup_modules(home, signal_home)
+            await self.setup_modules(home, signal_home)
 
             self.hass.data[DOMAIN][DATA_PERSONS][home.entity_id] = {
                 person.entity_id: person.pseudo for person in home.persons.values()
@@ -308,7 +310,7 @@ class NetatmoDataHandler:
                     ),
                 )
 
-    def setup_modules(self, home: pyatmo.Home, signal_home: str) -> None:
+    async def setup_modules(self, home: pyatmo.Home, signal_home: str) -> None:
         """Set up modules."""
         netatmo_type_signal_map = {
             NetatmoDeviceCategory.camera: [
@@ -324,9 +326,15 @@ class NetatmoDataHandler:
             ],
             NetatmoDeviceCategory.meter: [NETATMO_CREATE_SENSOR],
         }
+        resp = await home.auth.async_post_api_request(endpoint=GETHOMESDATA_ENDPOINT)
+        raw_data = extract_raw_data_new(await resp.json(), "homes")
+        raw_home = [home2 for home2 in raw_data["homes"] if home2.get('id')==home.entity_id][0]
+
         for module in home.modules.values():
             if not module.device_category:
                 if module.device_type == NetatmoDeviceType.NACamDoorTag:
+                    raw_module = [module2 for module2 in raw_home["modules"] if module2["id"]==module.entity_id][0]
+                    module.raw_data = raw_module
                     async_dispatcher_send(
                         self.hass,
                         NETATMO_CREATE_DOORTAG_SENSOR,

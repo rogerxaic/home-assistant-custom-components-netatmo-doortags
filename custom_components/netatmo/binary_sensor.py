@@ -103,7 +103,6 @@ class NetatmoCamDoorTagBinarySensor(NetatmoBase, BinarySensorEntity):
         """Initialize the sensor."""
         super().__init__(netatmo_device.data_handler)
         self.entity_description = DOORTAG_SENSOR_DESCRIPTION
-        self._device_class = DOORTAG_SENSOR_DESCRIPTION.device_class
 
         self._module = cast(pyatmo.modules.NACamDoorTag, netatmo_device.device)
         self._id = self._module.entity_id
@@ -144,3 +143,13 @@ class NetatmoCamDoorTagBinarySensor(NetatmoBase, BinarySensorEntity):
     def is_on(self) -> bool:
         """Return True if the binary sensor is on."""
         return self._module.status == ATTR_OPEN
+
+    @property
+    def device_class(self) -> BinarySensorDeviceClass | None:
+        """Return the class of the binary sensor."""
+        if self._module.raw_data["category"] == "door":
+            return BinarySensorDeviceClass.DOOR
+        if self._module.raw_data["category"] == "window":
+            return BinarySensorDeviceClass.WINDOW
+
+        return BinarySensorDeviceClass.OPENING
